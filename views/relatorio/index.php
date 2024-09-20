@@ -45,12 +45,56 @@ $this->params['breadcrumbs'][] = $this->title;
                     $result = '';
 
                     foreach ($empregados as $empregado) {
-                        $result .= '' . $empregado['NOME'] . ' - ' . $empregado['PAPEL'] . ' ;;; ';
+                        $result .= '' . $empregado['NOME'] . ' - ' . $empregado['PAPEL'] . ' <br> ';
                     }
-                    return Html::encode($result);
-                }
-            ],
+                    return $result;
+                },
+                'format' => 'html', 
 
+            ],
+            [
+                'attribute' => 'equipamentos',
+                'label' => 'Equipamentos das Pesquisa da Colônia',
+                'value' => function ($model) {
+
+                    $equipamentos = ConsultasHelper::getEquipamentosColonia($model['NOME'], $model['NUMERO']);
+
+                    $result = '';
+
+                    foreach ($equipamentos as $equipamento) {
+                        $result .= '' . $equipamento['NOME'] . ' <br> ';
+                    }
+                    return $result;
+                },
+                'format' => 'html', 
+            ],
+            [
+                'attribute' => 'jazida',
+                'label' => 'Jazida',
+                'value' => function ($model) {
+
+                    $jazida = ConsultasHelper::getJazida($model['NOME'], $model['NUMERO']);
+
+       
+                    return "{$jazida['LATITUDE']} - {$jazida['LONGITUDE']} - {$jazida['NOMEREGIAO']}";
+                },
+                'format' => 'html', 
+            ],
+            [
+                'attribute' => 'maquinarios',
+                'label' => 'Maquinarios',
+                'value' => function ($model) {
+
+                    $maquinarios = ConsultasHelper::getMaquinarios($model['NOME'],$model['NUMERO']);
+                    $result = '';
+
+                    foreach ($maquinarios as $maquinario) {
+                        $result .= '' . $maquinario['NOME'] . ' <br> ';
+                    }
+                    return $result;
+                },
+                'format' => 'html', 
+            ],
         ],
     ]); ?>
 

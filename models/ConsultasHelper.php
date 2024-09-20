@@ -97,4 +97,61 @@ class ConsultasHelper
 
         return $empregados;
     }
+
+    public static function getEquipamentosColonia($NOMEC, $NUMEROC)
+    {
+        $db = Database::instance()->db;
+
+        $sql = "SELECT e.NOME FROM EQUIPAMENTO e INNER JOIN PESQUISAEQUIPAMENTO p ON e.NOME = p.NOMEEQUIPAMENTO
+                INNER JOIN PESQUISA p2 ON p2.NOME = p.NOMEPESQUISA
+                INNER JOIN EMPREGADOCIENTISTA e2 ON e2.NOME = p2.NOMECIENTISTA
+                INNER JOIN EMPREGADO e3 ON e2.NOME = e3.NOME
+                WHERE e3.NOMEC = :NOMEC AND e3.NUMEROC = :NUMEROC";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam('NOMEC', $NOMEC);
+        $stmt->bindParam('NUMEROC', $NUMEROC);
+        $stmt->execute();
+
+        $equipamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+        return $equipamentos;
+    }
+
+
+    public static function getJazida($NOMEC, $NUMEROC)
+    {
+        $db = Database::instance()->db;
+
+        $sql = "SELECT LATITUDE, LONGITUDE, NOMEREGIAO FROM JAZIDA j
+                LEFT JOIN COLONIA c ON c.LATITUDEJ = j.LATITUDE AND c.LONGITUDEJ = j.LONGITUDE
+                WHERE c.NUMERO = :NUMEROC AND c.NOME = :NOMEC";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam('NOMEC', $NOMEC);
+        $stmt->bindParam('NUMEROC', $NUMEROC);
+        $stmt->execute();
+
+        $jazida = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $jazida;
+    }
+
+    public static function getMaquinarios($NOMEC, $NUMEROC)
+    {
+        $db = Database::instance()->db;
+
+        $sql = "SELECT m.NOME FROM MAQUINARIO m
+                INNER JOIN COLONIA c ON c.LATITUDEJ = m.LATITUDEJ AND c.LONGITUDEJ = c.LONGITUDEJ
+                WHERE c.NUMERO = :NUMEROC AND c.NOME = :NOMEC";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam('NOMEC', $NOMEC);
+        $stmt->bindParam('NUMEROC', $NUMEROC);
+        $stmt->execute();
+
+        $maquinarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $maquinarios;
+    }
+
+
 }

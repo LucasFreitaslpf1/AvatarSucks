@@ -44,7 +44,7 @@ class Maquinario extends Model
             [['NOME', 'TIPO'], 'required'],
             [['NOME'], 'string', 'max' => 255],
             [['TIPO'], 'string', 'max' => 60],
-            [['POTENCIA', 'PESO', 'CAPACIDADE'], 'number'],
+            [['POTENCIA', 'PESO', 'CAPACIDADE'], 'double'],
             [['LATITUDEJ', 'LONGITUDEJ'], 'number'],
             [['latitude_longitude'], 'safe'],
         ];
@@ -74,7 +74,8 @@ class Maquinario extends Model
         $db = Database::instance()->db;
 
         $sql = 'INSERT INTO MAQUINARIO VALUES (:NOME, :TIPO, :POTENCIA, :PESO, :CAPACIDADE, :LATITUDEJ, :LONGITUDEJ)';
-        $stmt = $db->prepare($sql);
+        // $stmt = $db->prepare($sql);
+        $stmt = Yii::$app->db->createCommand('INSERT INTO MAQUINARIO VALUES (:NOME, :TIPO, :POTENCIA, :PESO, :CAPACIDADE, :LATITUDEJ, :LONGITUDEJ)');
 
         // Associa os parâmetros
         $stmt->bindParam(':NOME', $this->NOME);
