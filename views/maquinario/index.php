@@ -21,7 +21,8 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Create Maquinario', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+    <?php // echo $this->render('_search', ['model' => $searchModel]); 
+    ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -34,13 +35,13 @@ $this->params['breadcrumbs'][] = $this->title;
             'POTENCIA',
             'PESO',
             'CAPACIDADE',
-            //'LATITUDEJ',
-            //'LONGITUDEJ',
+            'LATITUDEJ',
+            'LONGITUDEJ',
             [
                 'class' => ActionColumn::className(),
                 'urlCreator' => function ($action, $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'NOME' => $model['NOME'], 'TIPO' => $model['TIPO']]);
-                 }
+                }
             ],
         ],
     ]); ?>

@@ -23,7 +23,8 @@ use yii\base\Model;
 );
  */
 
-class Maquinario extends ActiveRecord{
+class Maquinario extends Model
+{
 
     public $NOME;
     public $TIPO;
@@ -33,21 +34,20 @@ class Maquinario extends ActiveRecord{
     public $LATITUDEJ;
     public $LONGITUDEJ;
 
-    public static function tableName()
-    {
-        return 'MAQUINARIO'; 
-    }
+    // Usado apenas para pegar do form
+    public $latitude_longitude;
 
     public function rules()
     {
-        
+
         return [
             [['NOME', 'TIPO'], 'required'],
             [['NOME'], 'string', 'max' => 255],
             [['TIPO'], 'string', 'max' => 60],
             [['POTENCIA', 'PESO', 'CAPACIDADE'], 'number'],
             [['LATITUDEJ', 'LONGITUDEJ'], 'number'],
-        ];   
+            [['latitude_longitude'], 'safe'],
+        ];
     }
 
     public function attributeLabels()
@@ -58,18 +58,18 @@ class Maquinario extends ActiveRecord{
             'POTENCIA' => 'Potência',
             'PESO' => 'Peso',
             'CAPACIDADE' => 'Capacidade',
-            'LATITUDEJ' => 'Latitude',
-            'LONGITUDEJ' => 'Longitude',   
+            'LATITUDEJ' => 'Latitude Jazida',
+            'LONGITUDEJ' => 'Longitude Jazida',
         ];
     }
 
 
-    public function salvar(): bool
+    public function save(): bool
     {
-        $vars = explode('-', $this->LATITUDEJ);
+        $vars = explode(';', $this->latitude_longitude);
 
-        $this->LATITUDEJ = $vars[0];
-        $this->LONGITUDEJ = $vars[1];
+        $this->LONGITUDEJ = $vars[0];
+        $this->LATITUDEJ = $vars[1];
 
         $db = Database::instance()->db;
 
@@ -88,52 +88,46 @@ class Maquinario extends ActiveRecord{
         return $stmt->execute();
     }
 
-    public function atualizar($nome, $tipo)
+    public function update($nome, $tipo)
     {
-        
+
         $db = Database::instance()->db;
 
-        $vars = explode('-', $this->LATITUDEJ);
+        $vars = explode(';', $this->latitude_longitude);
 
-        $this->LATITUDEJ = $vars[0];
-        $this->LONGITUDEJ = $vars[1];
-        
-        $stmt = $db->prepare('UPDATE MAQUINARIO SET NOME = :NOME, TIPO = :TIPO, POTENCIA = :POTENCIA, PESO = :PESO, CAPACIDADE = :CAPACIDADE, 
-        LATITUDEJ = :LATITUDEJ, LONGITUDEJ = :LONGITUDEJ WHERE NOME = :NOME AND TIPO = :TIPO');
+        $this->LONGITUDEJ = $vars[0];
+        $this->LATITUDEJ = $vars[1];
 
-       
-        $stmt->bindParam(':NOME', $NOME);
-        $stmt->bindParam(':TIPO', $TIPO);
+
+        $stmt = $db->prepare("UPDATE MAQUINARIO SET NOME = :NOME, TIPO = :TIPO, POTENCIA = :POTENCIA, PESO = :PESO, CAPACIDADE = :CAPACIDADE,
+        LATITUDEJ = :LATITUDEJ, LONGITUDEJ = :LONGITUDEJ WHERE NOME = :CHAVENOME AND TIPO = :CHAVETIPO");
+
+
+        $stmt->bindParam(':NOME',  $this->NOME);
+        $stmt->bindParam(':TIPO', $this->TIPO);
         $stmt->bindParam(':POTENCIA', $this->POTENCIA);
         $stmt->bindParam(':PESO', $this->PESO);
         $stmt->bindParam(':CAPACIDADE', $this->CAPACIDADE);
         $stmt->bindParam(':LATITUDEJ', $this->LATITUDEJ);
         $stmt->bindParam(':LONGITUDEJ', $this->LONGITUDEJ);
+        $stmt->bindParam(':CHAVENOME', $nome);
+        $stmt->bindParam(':CHAVETIPO', $tipo);
 
-        
         return $stmt->execute();
     }
 
     public function delete()
     {
-        
+
         $db = Database::instance()->db;
 
         $stmt = $db->prepare('DELETE FROM MAQUINARIO WHERE NOME = :NOME AND TIPO = :TIPO');
 
-        
+
         $stmt->bindParam('NOME', $this->NOME);
         $stmt->bindParam('TIPO', $this->TIPO);
 
-        
+
         return $stmt->execute();
     }
-
-
-
-
-
-
-
-
 }

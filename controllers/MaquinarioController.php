@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\ConsultasHelper;
 use app\models\Database;
 use app\models\Maquinario;
 use app\models\MaquinarioSearch;
@@ -25,7 +26,7 @@ class MaquinarioController extends Controller
             parent::behaviors(),
             [
                 'verbs' => [
-                    'class' => VerbFilter::className(),
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
                     ],
@@ -71,14 +72,13 @@ class MaquinarioController extends Controller
      */
     public function actionCreate()
     {
+        Yii::debug(ConsultasHelper::getJazidas());
         $model = new Maquinario();
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
                 return $this->redirect(['view', 'NOME' => $model->NOME, 'TIPO' => $model->TIPO]);
             }
-        } else {
-            $model->loadDefaultValues();
         }
 
         return $this->render('create', [
@@ -98,7 +98,7 @@ class MaquinarioController extends Controller
     {
         $model = $this->findModel($NOME, $TIPO);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
+        if ($this->request->isPost && $model->load($this->request->post()) && $model->update($NOME, $TIPO)) {
             return $this->redirect(['view', 'NOME' => $model->NOME, 'TIPO' => $model->TIPO]);
         }
 
@@ -146,5 +146,4 @@ class MaquinarioController extends Controller
         }
         throw new NotFoundHttpException('The requested page does not exist.');
     }
-
 }
