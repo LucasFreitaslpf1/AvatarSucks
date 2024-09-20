@@ -2,19 +2,17 @@
 
 namespace app\controllers;
 
-use app\models\Database;
-use app\models\Maquinario;
-use app\models\MaquinarioSearch;
+use app\models\ContainerLaboratorio;
+use app\models\ContainerLaboratorioSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use PDO;
 use yii;
-
 /**
- * MaquinarioController implements the CRUD actions for Maquinario model.
+ * ContainerLaboratorioController implements the CRUD actions for ContainerLaboratorio model.
  */
-class MaquinarioController extends Controller
+class ContainerLaboratorioController extends Controller
 {
     /**
      * @inheritDoc
@@ -35,13 +33,13 @@ class MaquinarioController extends Controller
     }
 
     /**
-     * Lists all Maquinario models.
+     * Lists all ContainerLaboratorio models.
      *
      * @return string
      */
     public function actionIndex()
     {
-        $searchModel = new MaquinarioSearch();
+        $searchModel = new ContainerLaboratorioSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
 
         return $this->render('index', [
@@ -51,34 +49,30 @@ class MaquinarioController extends Controller
     }
 
     /**
-     * Displays a single Maquinario model.
-     * @param string $NOME
-     * @param string $TIPO
+     * Displays a single ContainerLaboratorio model.
+     * @param string $SIGLA Sigla
+     * @param string $NOME Nome
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($NOME, $TIPO)
+    public function actionView($SIGLA, $NOME)
     {
         return $this->render('view', [
-            'model' => $this->findModel($NOME, $TIPO),
+            'model' => $this->findModel($SIGLA, $NOME),
         ]);
     }
 
     /**
-     * Creates a new Maquinario model.
+     * Creates a new ContainerLaboratorio model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
     public function actionCreate()
     {
-        $model = new Maquinario();
+        $model = new ContainerLaboratorio();
 
-        if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'NOME' => $model->NOME, 'TIPO' => $model->TIPO]);
-            }
-        } else {
-            $model->loadDefaultValues();
+        if ($model->load(Yii::$app->request->post()) && $model->saveContainerLaboratorio()) {
+            return $this->redirect(['view', 'id' => $model->SIGLA]);
         }
 
         return $this->render('create', [
@@ -86,20 +80,21 @@ class MaquinarioController extends Controller
         ]);
     }
 
+
     /**
-     * Updates an existing Maquinario model.
+     * Updates an existing ContainerLaboratorio model.
      * If update is successful, the browser will be redirected to the 'view' page.
-     * @param string $NOME
-     * @param string $TIPO
+     * @param string $SIGLA Sigla
+     * @param string $NOME Nome
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($NOME, $TIPO)
+    public function actionUpdate($SIGLA, $NOME)
     {
-        $model = $this->findModel($NOME, $TIPO);
+        $model = $this->findModel($SIGLA, $NOME);
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'NOME' => $model->NOME, 'TIPO' => $model->TIPO]);
+            return $this->redirect(['view', 'SIGLA' => $model->SIGLA, 'NOME' => $model->NOME]);
         }
 
         return $this->render('update', [
@@ -108,43 +103,34 @@ class MaquinarioController extends Controller
     }
 
     /**
-     * Deletes an existing Maquinario model.
+     * Deletes an existing ContainerLaboratorio model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param string $NOME
-     * @param string $TIPO
+     * @param string $SIGLA Sigla
+     * @param string $NOME Nome
      * @return \yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($NOME, $TIPO)
+    public function actionDelete($SIGLA, $NOME)
     {
-        $this->findModel($NOME, $TIPO)->delete();
+        $this->findModel($SIGLA, $NOME)->delete();
 
         return $this->redirect(['index']);
     }
 
     /**
-     * Finds the Maquinario model based on its primary key value.
+     * Finds the ContainerLaboratorio model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param string $NOME
-     * @param string $TIPO
-     * @return Maquinario the loaded model
+     * @param string $SIGLA Sigla
+     * @param string $NOME Nome
+     * @return ContainerLaboratorio the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($NOME, $TIPO)
+    protected function findModel($SIGLA, $NOME)
     {
-        $db = Database::instance()->db;
-        $stmt = $db->prepare("SELECT NOME, TIPO, POTENCIA, PESO, CAPACIDADE, LATITUDEJ, LONGITUDEJ FROM MAQUINARIO WHERE NOME = :NOME AND TIPO = :TIPO");
-        $stmt->bindParam(':NOME', $NOME);
-        $stmt->bindParam(':TIPO', $TIPO);
-        $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($result) {
-            $model = new Maquinario();
-            $model->setAttributes($result);
+        if (($model = ContainerLaboratorio::findOne(['SIGLA' => $SIGLA, 'NOME' => $NOME])) !== null) {
             return $model;
         }
-        throw new NotFoundHttpException('TPágina Inexistente.');
-    }
 
+        throw new NotFoundHttpException('Página Inexistente.');
+    }
 }
