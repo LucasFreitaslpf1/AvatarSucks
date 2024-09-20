@@ -31,6 +31,10 @@ $this->params['breadcrumbs'][] = $this->title;
         'attributes' => [
             'SIGLA',
             'NOME',
+            'TAMANHO',
+            'FUNCAO',
+            'NUMEROC',
+            'NOMEC',
             'QUANTIDADE_CAMAS',
             'QUANTIDADE_BANHEIROS',
         ],

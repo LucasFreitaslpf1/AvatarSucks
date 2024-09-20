@@ -22,7 +22,8 @@ CREATE TABLE container(
     PRIMARY KEY (sigla,nome)
 );*/
 
-class Container extends ActiveRecord{
+class Container extends Model
+{
 
     public $NOME;
     public $SIGLA;
@@ -31,10 +32,9 @@ class Container extends ActiveRecord{
     public $NUMEROC;
     public $NOMEC;
 
-    public static function tableName()
-    {
-        return 'CONTAINER';
-    }
+    // SÓ PRA CARREGAR OS VALORES DE COLONIA
+    public $colonia;
+
 
     public function rules()
     {
@@ -46,6 +46,7 @@ class Container extends ActiveRecord{
             [['FUNCAO'], 'string', 'max' => 255],
             [['NUMEROC'], 'integer'],
             [['NOMEC'], 'string', 'max' => 80],
+            [['colonia'], 'safe'],
         ];
     }
 
@@ -60,30 +61,4 @@ class Container extends ActiveRecord{
             'NOMEC' => 'Nome Colônia',
         ];
     }
-
-    public function saveContainer($containerData, $specificData)
-    {
-        $this->setAttributes($containerData);
-
-        if ($this->save()) {
-            foreach ($specificData as $data) {
-                $specificModel = new SpecificContainer(); // Use o modelo específico correspondente
-                $specificModel->setAttributes($data);
-                $specificModel->SIGLA = $this->SIGLA; // Associar a sigla
-                $specificModel->NOME = $this->NOME;   // Associar o nome
-
-                if (!$specificModel->save()) {
-                    return false; // Se falhar, retornar false
-                }
-            }
-            return true; // Se tudo foi salvo com sucesso
-        }
-
-        return false; // Se o Container não foi salvo
-    }
-
-
-
-
-
 }

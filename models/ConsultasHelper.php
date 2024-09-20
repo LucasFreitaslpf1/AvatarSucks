@@ -62,4 +62,39 @@ class ConsultasHelper
 
         return $jazidas;
     }
+
+    public static function getColonias()
+    {
+        $db = Database::instance()->db;
+
+        $sql = "SELECT NOME, NUMERO FROM COLONIA";
+        $stmt = $db->prepare($sql);
+        $stmt->execute();
+
+        $colonias = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $colonias = ArrayHelper::map($colonias, function ($model) {
+            return "{$model['NOME']};{$model['NUMERO']}";
+        }, function ($model) {
+            return "{$model['NUMERO']} - {$model['NOME']}";
+        });
+
+        return $colonias;
+    }
+
+    public static function getHumanoColonia($NOMEC, $NUMEROC)
+    {
+        $db = Database::instance()->db;
+
+        $sql = "SELECT NOME, PAPEL FROM EMPREGADO WHERE NOMEC = :NOMEC AND NUMEROC = :NUMEROC";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam('NOMEC', $NOMEC);
+        $stmt->bindParam('NUMEROC', $NUMEROC);
+        $stmt->execute();
+
+        $empregados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+        return $empregados;
+    }
 }

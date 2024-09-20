@@ -19,7 +19,9 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'POTENCIA')->textInput() ?>
     <?= $form->field($model, 'PESO')->textInput() ?>
     <?= $form->field($model, 'CAPACIDADE')->textInput() ?>
-    <?= $form->field($model, 'latitude_longitude')->dropDownList(ConsultasHelper::getJazidas()) ?>
+    <?= $form->field($model, 'latitude_longitude')->dropDownList(
+        ConsultasHelper::getJazidas(),
+    ) ?>
 
 
     <div class="form-group">

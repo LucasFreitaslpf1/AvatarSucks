@@ -4,11 +4,13 @@ namespace app\controllers;
 
 use app\models\ContainerLaboratorio;
 use app\models\ContainerLaboratorioSearch;
+use app\models\Database;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use PDO;
 use yii;
+
 /**
  * ContainerLaboratorioController implements the CRUD actions for ContainerLaboratorio model.
  */
@@ -23,7 +25,7 @@ class ContainerLaboratorioController extends Controller
             parent::behaviors(),
             [
                 'verbs' => [
-                    'class' => VerbFilter::className(),
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
                     ],
@@ -70,9 +72,10 @@ class ContainerLaboratorioController extends Controller
     public function actionCreate()
     {
         $model = new ContainerLaboratorio();
+        $model->FUNCAO = "Laboratório";
 
-        if ($model->load(Yii::$app->request->post()) && $model->saveContainerLaboratorio()) {
-            return $this->redirect(['view', 'id' => $model->SIGLA]);
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['view', 'SIGLA' => $model->SIGLA, 'NOME' => $model->NOME]);
         }
 
         return $this->render('create', [
@@ -93,7 +96,7 @@ class ContainerLaboratorioController extends Controller
     {
         $model = $this->findModel($SIGLA, $NOME);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
+        if ($this->request->isPost && $model->load($this->request->post()) && $model->update($NOME, $SIGLA)) {
             return $this->redirect(['view', 'SIGLA' => $model->SIGLA, 'NOME' => $model->NOME]);
         }
 
@@ -127,9 +130,20 @@ class ContainerLaboratorioController extends Controller
      */
     protected function findModel($SIGLA, $NOME)
     {
-        if (($model = ContainerLaboratorio::findOne(['SIGLA' => $SIGLA, 'NOME' => $NOME])) !== null) {
+        $db = Database::instance()->db;
+        $stmt = $db->prepare("SELECT NOME, SIGLA, TAMANHO, FUNCAO, NUMEROC, NOMEC, CONTAINERLABORATORIO.FINALIDADE FROM CONTAINER
+        NATURAL JOIN CONTAINERLABORATORIO WHERE SIGLA = :SIGLA AND NOME = :NOME");
+        $stmt->bindParam('NOME', $NOME);
+        $stmt->bindParam('SIGLA', $SIGLA);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        Yii::debug($result);
+        if ($result) {
+            $model = new ContainerLaboratorio();
+            $model->setAttributes($result);
             return $model;
         }
+
 
         throw new NotFoundHttpException('Página Inexistente.');
     }

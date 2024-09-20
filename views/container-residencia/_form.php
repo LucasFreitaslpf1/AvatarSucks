@@ -1,5 +1,6 @@
 <?php
 
+use app\models\ConsultasHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -12,9 +13,15 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'SIGLA')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'SIGLA')->textInput(['maxlength' => true, 'readOnly' => $update ?? false]) ?>
 
-    <?= $form->field($model, 'NOME')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'NOME')->textInput(['maxlength' => true, 'readOnly' => $update ?? false]) ?>
+
+    <?= $form->field($model, 'TAMANHO')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'FUNCAO')->textInput(['maxlength' => true, 'readOnly' => true]) ?>
+
+    <?= $form->field($model, 'colonia')->dropDownList(ConsultasHelper::getColonias()) ?>
 
     <?= $form->field($model, 'QUANTIDADE_CAMAS')->textInput() ?>
 

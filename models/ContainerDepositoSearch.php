@@ -41,26 +41,25 @@ class ContainerDepositoSearch extends ContainerDeposito
      */
     public function search($params)
     {
-        $query = ContainerDeposito::find();
-
-        // add conditions that should always apply here
-
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-        ]);
-
         $this->load($params);
 
-        if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
-            return $dataProvider;
-        }
+        $db = Database::instance()->db;
 
-        // grid filtering conditions
-        $query->andFilterWhere(['like', 'SIGLA', $this->SIGLA])
-            ->andFilterWhere(['like', 'NOME', $this->NOME])
-            ->andFilterWhere(['like', 'TIPO', $this->TIPO]);
+        $sql = "SELECT NOME, SIGLA, TAMANHO, FUNCAO, NUMEROC, NOMEC, CONTAINERDEPOSITO.TIPO FROM CONTAINER
+        NATURAL JOIN CONTAINERDEPOSITO";
+        $params = [];
+
+        $stmt = $db->prepare($sql);
+
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $result,
+            'pagination' => [
+                'pageSize' => 10,
+            ]
+        ]);
 
         return $dataProvider;
     }

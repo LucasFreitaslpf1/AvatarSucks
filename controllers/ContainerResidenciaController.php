@@ -4,11 +4,13 @@ namespace app\controllers;
 
 use app\models\ContainerResidencia;
 use app\models\ContainerResidenciaSearch;
+use app\models\Database;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use PDO;
 use yii;
+
 /**
 /**
  * ContainerResidenciaController implements the CRUD actions for ContainerResidencia model.
@@ -71,13 +73,12 @@ class ContainerResidenciaController extends Controller
     public function actionCreate()
     {
         $model = new ContainerResidencia();
+        $model->FUNCAO = 'Residência';
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
                 return $this->redirect(['view', 'SIGLA' => $model->SIGLA, 'NOME' => $model->NOME]);
             }
-        } else {
-            $model->loadDefaultValues();
         }
 
         return $this->render('create', [
@@ -97,7 +98,7 @@ class ContainerResidenciaController extends Controller
     {
         $model = $this->findModel($SIGLA, $NOME);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
+        if ($this->request->isPost && $model->load($this->request->post()) && $model->update($NOME, $SIGLA)) {
             return $this->redirect(['view', 'SIGLA' => $model->SIGLA, 'NOME' => $model->NOME]);
         }
 
@@ -116,7 +117,7 @@ class ContainerResidenciaController extends Controller
      */
     public function actionDelete($SIGLA, $NOME)
     {
-        $this->findModel($SIGLA, $NOME)->delete();
+        $this->findModel($SIGLA, $NOME)->delete($NOME, $SIGLA);
 
         return $this->redirect(['index']);
     }
@@ -131,7 +132,17 @@ class ContainerResidenciaController extends Controller
      */
     protected function findModel($SIGLA, $NOME)
     {
-        if (($model = ContainerResidencia::findOne(['SIGLA' => $SIGLA, 'NOME' => $NOME])) !== null) {
+        $db = Database::instance()->db;
+        $stmt = $db->prepare("SELECT NOME, SIGLA, TAMANHO, FUNCAO, NUMEROC, NOMEC, CONTAINERRESIDENCIA.QUANTIDADE_CAMAS, CONTAINERRESIDENCIA.QUANTIDADE_BANHEIROS FROM CONTAINER
+        NATURAL JOIN CONTAINERRESIDENCIA WHERE SIGLA = :SIGLA AND NOME = :NOME");
+        $stmt->bindParam('NOME', $NOME);
+        $stmt->bindParam('SIGLA', $SIGLA);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        Yii::debug($result);
+        if ($result) {
+            $model = new ContainerResidencia();
+            $model->setAttributes($result);
             return $model;
         }
 

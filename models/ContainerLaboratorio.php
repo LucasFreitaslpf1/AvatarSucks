@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Exception;
 use PDO;
 use Yii;
 use Symfony\Component\VarDumper\Cloner\Data;
@@ -18,18 +19,19 @@ use yii\base\Model;
 );
  */
 
-class containerlaboratorio extends ActiveRecord
+class containerlaboratorio extends Container
 {
-    public static function tableName()
-    {
-        return 'CONTAINERLABORATORIO';
-    }
+    public $FINALIDADE;
 
     public function rules()
     {
         return [
+            [['TAMANHO'], 'number'],
+            [['FUNCAO'], 'string', 'max' => 255],
             [['SIGLA', 'NOME'], 'required'],
             [['NOME'], 'string', 'max' => 255],
+            [['FINALIDADE', 'NOMEC', 'NUMEROC'], 'safe'],
+            [['colonia'], 'safe'],
             [['SIGLA'], 'string', 'max' => 6],
             [['FINALIDADE'], 'string', 'max' => 255],
         ];
@@ -41,38 +43,99 @@ class containerlaboratorio extends ActiveRecord
             'NOME' => 'Nome',
             'SIGLA' => 'Sigla',
             'FINALIDADE' => 'Finalidade',
+            'NOMEC' => 'Nome Colonia',
+            'NUMEROC' => 'Numero Colonia',
         ];
     }
-    public function saveContainerLaboratorio()
+    public function save()
     {
-        $transaction = Yii::$app->db->beginTransaction(); // Iniciar transação
+        $vars = explode(';', $this->colonia);
+        $this->NOMEC = $vars[0];
+        $this->NUMEROC = $vars[1];
+
+        $db = Database::instance()->db;
+        $db->beginTransaction();
+
         try {
-            // Primeiro, salvar no modelo Container
-            $container = new Container();  // Certifique-se de ter o modelo Container
-            $container->SIGLA = $this->SIGLA;
-            $container->NOME = $this->NOME;
-            // Definir outros atributos de Container se houver
-            if (!$container->save()) {
-                // Falha ao salvar Container
-                $transaction->rollBack();
-                return false;
-            }
+            $sql = 'INSERT INTO CONTAINER VALUES (:NOME, :SIGLA, :TAMANHO, :FUNCAO, :NUMEROC, :NOMEC)';
 
-            // Agora salvar ContainerLaboratorio
-            if (!$this->save()) {
-                // Falha ao salvar ContainerLaboratorio
-                $transaction->rollBack();
-                return false;
-            }
+            $stmt_container = $db->prepare($sql);
 
-            $transaction->commit(); // Confirma a transação
-            return true;
-        } catch (\Exception $e) {
-            $transaction->rollBack(); // Reverte em caso de erro
-            throw $e;
+            $stmt_container->bindParam('NOME', $this->NOME);
+            $stmt_container->bindParam('SIGLA', $this->SIGLA);
+            $stmt_container->bindParam('TAMANHO', $this->TAMANHO);
+            $stmt_container->bindParam('FUNCAO', $this->FUNCAO);
+            $stmt_container->bindParam('NUMEROC', $this->NUMEROC);
+            $stmt_container->bindParam('NOMEC', $this->NOMEC);
+
+            $save1 = $stmt_container->execute();
+
+            $sql2 = 'INSERT INTO CONTAINERLABORATORIO VALUES (:SIGLA, :NOME, :FINALIDADE)';
+            $stmt_laboratorio = $db->prepare($sql2);
+
+            $stmt_laboratorio->bindParam('NOME', $this->NOME);
+            $stmt_laboratorio->bindParam('SIGLA', $this->SIGLA);
+            $stmt_laboratorio->bindParam('FINALIDADE', $this->FINALIDADE);
+
+            $save2 = $stmt_laboratorio->execute();
+            if ($save1 && $save2) {
+                $db->commit();
+                return true;
+            }
+            return false;
+        } catch (Exception $e) {
+            Yii::debug($e->getMessage());
+            $db->rollBack();
+            return false;
         }
     }
 
+    public function update($nome, $sigla)
+    {
+        $vars = explode(';', $this->colonia);
+        $this->NOMEC = $vars[0];
+        $this->NUMEROC = $vars[1];
 
+        $db = Database::instance()->db;
+        $db->beginTransaction();
 
+        try {
+            $sql = 'UPDATE CONTAINER SET NOME = :NOME, SIGLA = :SIGLA, TAMANHO = :TAMANHO, FUNCAO = :FUNCAO, NUMEROC = :NUMEROC, NOMEC = :NOMEC
+             WHERE NOME = :CHAVENOME AND SIGLA = :CHAVESIGLA';
+
+            $stmt_container = $db->prepare($sql);
+
+            $stmt_container->bindParam('NOME', $this->NOME);
+            $stmt_container->bindParam('SIGLA', $this->SIGLA);
+            $stmt_container->bindParam('TAMANHO', $this->TAMANHO);
+            $stmt_container->bindParam('FUNCAO', $this->FUNCAO);
+            $stmt_container->bindParam('NUMEROC', $this->NUMEROC);
+            $stmt_container->bindParam('NOMEC', $this->NOMEC);
+            $stmt_container->bindParam('CHAVENOME', $nome);
+            $stmt_container->bindParam('CHAVESIGLA', $sigla);
+
+            $save1 = $stmt_container->execute();
+
+            $sql2 = 'UPDATE CONTAINERLABORATORIO SET SIGLA = :SIGLA, NOME = :NOME, FINALIDADE = :FINALIDADE WHERE NOME = :CHAVENOME AND SIGLA = :CHAVESIGLA';
+            $stmt_laboratorio = $db->prepare($sql2);
+
+            $stmt_laboratorio->bindParam('NOME', $this->NOME);
+            $stmt_laboratorio->bindParam('SIGLA', $this->SIGLA);
+            $stmt_laboratorio->bindParam('FINALIDADE', $this->FINALIDADE);
+            $stmt_laboratorio->bindParam('CHAVENOME', $nome);
+            $stmt_laboratorio->bindParam('CHAVESIGLA', $sigla);
+
+            $save2 = $stmt_laboratorio->execute();
+
+            if ($save1 && $save2) {
+                $db->commit();
+                return true;
+            }
+            return false;
+        } catch (Exception $e) {
+            Yii::debug($e->getMessage());
+            $db->rollBack();
+            return false;
+        }
+    }
 }

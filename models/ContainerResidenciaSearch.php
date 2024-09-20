@@ -5,6 +5,8 @@ namespace app\models;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\ContainerResidencia;
+use PDO;
+use yii\data\ArrayDataProvider;
 
 /**
  * ContainerResidenciaSearch represents the model behind the search form of `app\models\ContainerResidencia`.
@@ -40,30 +42,25 @@ class ContainerResidenciaSearch extends ContainerResidencia
      */
     public function search($params)
     {
-        $query = ContainerResidencia::find();
-
-        // add conditions that should always apply here
-
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-        ]);
-
         $this->load($params);
 
-        if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
-            return $dataProvider;
-        }
+        $db = Database::instance()->db;
 
-        // grid filtering conditions
-        $query->andFilterWhere([
-            'QUANTIDADE_CAMAS' => $this->QUANTIDADE_CAMAS,
-            'QUANTIDADE_BANHEIROS' => $this->QUANTIDADE_BANHEIROS,
+        $sql = "SELECT NOME, SIGLA, TAMANHO, FUNCAO, NUMEROC, NOMEC, CONTAINERRESIDENCIA.QUANTIDADE_CAMAS, CONTAINERRESIDENCIA.QUANTIDADE_BANHEIROS FROM CONTAINER
+        NATURAL JOIN CONTAINERRESIDENCIA";
+        $params = [];
+
+        $stmt = $db->prepare($sql);
+
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $result,
+            'pagination' => [
+                'pageSize' => 10,
+            ]
         ]);
-
-        $query->andFilterWhere(['like', 'SIGLA', $this->SIGLA])
-            ->andFilterWhere(['like', 'NOME', $this->NOME]);
 
         return $dataProvider;
     }

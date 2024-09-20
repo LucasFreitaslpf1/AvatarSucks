@@ -21,7 +21,8 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Create Container Laboratorio', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+    <?php // echo $this->render('_search', ['model' => $searchModel]);
+    ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -34,9 +35,9 @@ $this->params['breadcrumbs'][] = $this->title;
             'FINALIDADE',
             [
                 'class' => ActionColumn::className(),
-                'urlCreator' => function ($action, ContainerLaboratorio $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'SIGLA' => $model->SIGLA, 'NOME' => $model->NOME]);
-                 }
+                'urlCreator' => function ($action, $model, $key, $index, $column) {
+                    return Url::toRoute([$action, 'SIGLA' => $model['SIGLA'], 'NOME' => $model['NOME']]);
+                }
             ],
         ],
     ]); ?>

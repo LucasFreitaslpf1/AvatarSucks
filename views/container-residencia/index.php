@@ -21,7 +21,8 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Create Container Residencia', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+    <?php // echo $this->render('_search', ['model' => $searchModel]); 
+    ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -35,9 +36,9 @@ $this->params['breadcrumbs'][] = $this->title;
             'QUANTIDADE_BANHEIROS',
             [
                 'class' => ActionColumn::className(),
-                'urlCreator' => function ($action, ContainerResidencia $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'SIGLA' => $model->SIGLA, 'NOME' => $model->NOME]);
-                 }
+                'urlCreator' => function ($action, $model, $key, $index, $column) {
+                    return Url::toRoute([$action, 'SIGLA' => $model['SIGLA'], 'NOME' => $model['NOME']]);
+                }
             ],
         ],
     ]); ?>
