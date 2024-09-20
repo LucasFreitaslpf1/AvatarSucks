@@ -43,4 +43,39 @@ class ConsultasHelper
 
         return $cientistas;
     }
+    public static function getLatitude()
+    {
+        $db = Database::instance()->db;
+
+        $sql = "SELECT LATITUDE FROM JAZIDA"; 
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute();
+        $latitudes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Mapeia as jazidas para retornar os nomes com latitudes e longitudes
+        $latitudes = ArrayHelper::map($latitudes, function ($model) {
+            return $model['LATITUDE'];
+        }, 'LATITUDE');
+
+        return $latitudes;
+    }
+    public static function getLongitude()
+    {
+        $db = Database::instance()->db;
+
+        $sql = "SELECT LONGITUDE FROM JAZIDA"; 
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute();
+        $longitudes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Mapeia as jazidas para retornar os nomes com latitudes e longitudes
+        $longitudes = ArrayHelper::map($longitudes, function ($model) {
+            return $model['LONGITUDE'];
+        }, 'LONGITUDE');
+
+        return $longitudes;
+    }
+
 }
