@@ -45,6 +45,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 ['label' => 'Container Deposito', 'url' => ['/container-deposito']],
                 ['label' => 'Container Laboratório', 'url' => ['/container-laboratorio']],
                 ['label' => 'Container Residências', 'url' => ['/container-residencia']],
+                ['label' => 'Relatório', 'url' => ['/relatorio']],
             ]
         ]);
         NavBar::end();
